@@ -508,6 +508,13 @@ sys_getprocs(void)
   }
   return NumProcs;
 }
+int
+sys_getdir(int virtual_dir)
+{
+  struct proc *proceso = myproc();
+  pde_t *page_dir = proceso->pgdir
+  return page_dir[0] + virtual_dir;
+}
 
 //PAGEBREAK: 36
 // Print a process listing to console.  For debugging.

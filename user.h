@@ -24,6 +24,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int getprocs(void);
+int getdir(int virtual_dir);
 
 // ulib.c
 int stat(const char*, struct stat*);
