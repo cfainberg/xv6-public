@@ -92,11 +92,11 @@ sys_uptime(void)
 int 
 sys_getprocs(void)
 {
-  return proc->sz;
+  return getprocs();
 }
 
 int
 sys_getdir(int virtual_dir)
 {
-  return dir->sz;
+  return getdir();
 }
