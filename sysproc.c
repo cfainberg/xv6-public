@@ -89,14 +89,3 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
-int 
-sys_getprocs(void)
-{
-  return sys_getprocs();
-}
-
-int
-sys_getdir(int virtual_dir)
-{
-  return sys_getdir(virtual_dir);
-}
