@@ -512,7 +512,7 @@ int
 sys_getdir(int virtual_dir)
 {
   struct proc *proceso = myproc();
-  pde_t *page_dir = proceso->pgdir
+  pde_t *page_dir = proceso->pgdir;
   return page_dir[0] + virtual_dir;
 }
 
