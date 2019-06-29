@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "stdlib.h"
 
 struct {
   struct spinlock lock;
@@ -319,26 +320,42 @@ wait(void)
 //  - swtch to start running that process
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
+
+
 void
-scheduler(void)
-{
-  struct proc *p;
+lottery(void)
+{ struct proc *p
   struct cpu *c = mycpu();
   c->proc = 0;
   
-  for(;;){
-    // Enable interrupts on this processor.
-    sti();
+  int number_tickets = 0;
+  int count = 0;
+  int ganador = 0;
+  
+   
+   for(;;){
 
-    // Loop over process table looking for process to run.
+    sti();
+    count = 0;
+    number_tickets = 0;
+    ganador = 0;
+
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state==RUNNABLE){
+        number_tickets+=p->tickets;
+      }
+    }
+
     acquire(&ptable.lock);
+
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
+      ganador = rand()%(number_tickets);
+      if ((count + p->tickets) < ganador){
+      count += p->tickets;
+      }
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
@@ -346,13 +363,11 @@ scheduler(void)
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
+
       c->proc = 0;
     }
-    release(&ptable.lock);
-
-  }
+  release(&ptable.lock);
+   }
 }
 
 // Enter scheduler.  Must hold only ptable.lock
@@ -494,26 +509,6 @@ kill(int pid)
   }
   release(&ptable.lock);
   return -1;
-}
-
-int 
-sys_getprocs(void)
-{
-  int NumProcs = 0;
-  struct proc *ptr = ptable.proc;
-  for (; ptr < &ptable.proc[NPROC]; ptr++){
-    if(!(ptr->state == UNUSED) && !(ptr->state == ZOMBIE)){
-      NumProcs++;
-    }
-  }
-  return NumProcs;
-}
-int
-sys_getdir(int virtual_dir)
-{
-  struct proc *proceso = myproc();
-  pde_t *page_dir = proceso->pgdir;
-  return page_dir[0] + virtual_dir;
 }
 
 //PAGEBREAK: 36
